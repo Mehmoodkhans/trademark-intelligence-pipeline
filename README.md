@@ -262,4 +262,4 @@ trademark-intelligence-pipeline/
 ---
 
 *Mehmood Ahmed Khan — Data Scientist & Analytics Engineer*
-*github.com/Mehmoodkhans · linkedin.com/in/mehmood · Karachi, Pakistan*
+*github.com/Mehmoodkhans · linkedin.com/in/mehmood → linkedin.com/in/mehmoood*
