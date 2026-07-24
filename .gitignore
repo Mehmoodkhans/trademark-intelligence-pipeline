@@ -1,0 +1,25 @@
+# Source data — client confidential
+*.csv
+*.xlsx
+*.zip
+
+# Source PDFs — client confidential
+*.pdf
+
+# Jupyter notebook — proprietary pipeline
+*.ipynb
+.ipynb_checkpoints/
+
+# Database files
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db
