@@ -9,14 +9,14 @@
 ## Overview
 
 ```
-Pakistani IP Office PDF Exports
+Client IP Office PDF Exports
             │
             ▼
   ┌─────────────────────┐
   │   Stage 1           │
   │   PDF Extraction    │  pdfplumber · two parser versions
   └────────┬────────────┘
-           │  combined_data_ISMAIL.csv
+           │  combined_data_CLIENT.csv
            ▼
   ┌─────────────────────┐
   │   Stage 2           │
@@ -113,7 +113,7 @@ df = df.map(lambda x: " ".join(str(x).split()))   # replaces applymap
 
 ### Output
 
-`combined_data_ISMAIL.csv` — raw extracted records, UTF-8 BOM encoded for Excel compatibility.
+`combined_data_CLIENT.csv` — raw extracted records, UTF-8 BOM encoded for Excel compatibility.
 
 ---
 
@@ -125,13 +125,13 @@ The registry returns owner names in dozens of inconsistent formats for the same 
 
 ```
 Raw variants for a single entity:
-  "ISMAIL INDUSTRIES"
-  "ISMAIL INDUSTRIES LIMITED"
-  "Ismail Industries Limited [PK]"
-  "Trading As ISMAIL INDUSTRIES LIMITED"
-  "Trading as Trading As ISMAIL INDUSTRIES LIMITED [PK]"
-  "M/s. ISMAIL INDUSTRIES LIMITED [PK]"
-  "Trading As ISMAIL GOUP OF INDUSTRIES [PK]"    ← typo: GOUP
+  "I. INDUSTRIES"
+  "I. INDUSTRIES LIMITED"
+  "I. Industries Limited [PK]"
+  "Trading As I. INDUSTRIES LIMITED"
+  "Trading as Trading As I. INDUSTRIES LIMITED [PK]"
+  "M/s. I. INDUSTRIES LIMITED [PK]"
+  "Trading As I. GOUP OF INDUSTRIES [PK]"    ← typo: GOUP
 ```
 
 **Nine normalisation blocks** handle all variations for all 9 entities:
@@ -140,26 +140,27 @@ Raw variants for a single entity:
 # Pattern design principles:
 
 # 1. Case insensitive
-r'(?i)^ismail\s+industries.*'
+r'(?i)^i\.?\s+industries.*'
 
 # 2. Prefix-agnostic (catches "Trading As", "M/s." etc.)
-r'(?i).*trading\s+as\s+ismail\s+industries.*'
+r'(?i).*trading\s+as\s+i\.?\s+industries.*'
 
 # 3. Optional characters for typos
-r'(?i).*ismail\s+gr?oup\s+(of\s+)?industries.*'
+r'(?i).*i\.?\s+gr?oup\s+(of\s+)?industries.*'
 #                    ↑           ↑
 #             R optional    "OF" optional
 #             catches GOUP  catches missing word
 
 # 4. Singular/plural variants
-r'(?i).*cambridge\s+garments?\s+industries.*'
+r'(?i).*c\.?\s+garments?\s+industries.*'
 #                          ↑
 #                   S optional — catches both GARMENT and GARMENTS
 
-# 5. Brand confusion via alternation
-r'(?i).*(euro|furo)\s+food\s+industries.*'
-#              ↑
-#        catches registry typo FURO
+# 5. Brand confusion via single-character substitution
+r'(?i).*[ef]\.?\s+food\s+industries.*'
+#          ↑
+#   catches a registry single-character transcription error
+#   in the entity's first initial
 ```
 
 **False match removal — 5-record threshold:**
@@ -170,7 +171,7 @@ valid_owners = owner_counts[owner_counts >= 5].index
 df_clean = df[df['Owner name'].isin(valid_owners)].copy()
 ```
 
-36 records dropped — all individuals who share a name fragment with client entities (e.g. `"Mohammad Ismail, Trading As BADO PLASTICO BRUSH INDUSTRIES"`) but operate entirely unrelated businesses. The 5-record threshold is conservative and defensible — every dropped entity had 1–3 records and zero connection to the client portfolio.
+36 records dropped — all individuals who share a name fragment with client entities (e.g. an unrelated individual trading as a small business with a similar name fragment) but operate entirely unrelated businesses. The 5-record threshold is conservative and defensible — every dropped entity had 1–3 records and zero connection to the client portfolio.
 
 ### 2B — Status Normalisation
 
@@ -264,15 +265,15 @@ STATUS_MAPPING = {
 Trademarks_Analysis.xlsx
 │
 ├── Master_All_Data          ← all 520 records + Source_Sheet column
-├── Ismail Industries        ← 420 records
-├── Ismail Group             ← 40 records
-├── Agrolet Chemicals        ← 14 records
-├── Euro Food                ← 13 records
-├── Abid Industries          ← 9 records
-├── Union Thread             ← 8 records
-├── Cambridge Garments       ← 6 records
-├── Union Textile            ← 5 records
-├── Ideal Food               ← 5 records
+├── I. Industries Limited    ← 420 records
+├── I. Group of Industries   ← 40 records
+├── A. Chemicals Industries  ← 14 records
+├── E. Food Industries       ← 13 records
+├── A. Industries            ← 9 records
+├── U. Thread Industries     ← 8 records
+├── C. Garments Industries   ← 6 records
+├── U. Textile Industries    ← 5 records
+├── I. Food Industries       ← 5 records
 └── Unique Mark Names        ← cross-entity mark frequency analysis
 ```
 
@@ -412,7 +413,7 @@ Step 2:   Continuation rows merged into parent records
 Step 3:   Metadata rows filtered (ignore_keywords)
           ↓
 Step 4:   DataFrame constructed, Response column dropped
-          → combined_data_ISMAIL.csv (556 rows)
+          → combined_data_CLIENT.csv (556 rows)
           ↓
 Step 5:   9 owner name normalisation blocks applied
           ↓
@@ -442,9 +443,9 @@ Step 11:  HTML report generated with embedded charts
 
 **Status coverage:** `normalise_status()` returns `f'Other: {s[:40]}'` for any unrecognised status string. A verification cell (Stage 4A) confirms zero `Other:` entries in this dataset. Future datasets with new status variants will require additional normalisation blocks.
 
-**Threshold sensitivity:** The 5-record minimum for entity inclusion is a judgement call. Reducing to 3 would include additional entities; increasing to 10 would exclude Cambridge Garments, Union Textile, and Ideal Food. The current threshold is documented and can be adjusted in a single line.
+**Threshold sensitivity:** The 5-record minimum for entity inclusion is a judgement call. Reducing to 3 would include additional entities; increasing to 10 would exclude three of the smallest entities in the portfolio. The current threshold is documented and can be adjusted in a single line.
 
-**Windows path:** `folder_path = r"D:\ISMAIL INDUSTRIES"` is hardcoded for the original development environment. Update to your local PDF folder path before running Stage 1.
+**Local path:** The original development environment used a hardcoded local folder path for source PDFs. Update `folder_path` to your local PDF folder path before running Stage 1.
 
 ---
 
