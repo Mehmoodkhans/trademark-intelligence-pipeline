@@ -144,7 +144,7 @@ Multi-sheet formatted workbook (`openpyxl`):
 
 **Filing history:** The portfolio spans 60 years (1961–2021), with the dominant entity showing continuous filing activity. Smaller entities cluster in narrow windows (2002–2009) suggesting discrete registration campaigns rather than ongoing IP management.
 
-**False match rate:** 36 of 556 raw records (6.5%) were false matches — individuals with "Ismail" as a personal name returned by the registry search. These were identified, documented, and removed with a 5-record minimum threshold.
+**False match rate:** 36 of 556 raw records (6.5%) were false matches — individuals sharing a personal name fragment with the client entity's registered name, returned by the registry search.
 
 **Status normalisation complexity:** 33 raw status variants reduced to 20 canonical values. The registry's inconsistent truncation of status strings (e.g. `Opposition (period) finishe`) required careful `startswith()` ordering to prevent partial-match shadowing.
 
@@ -262,4 +262,4 @@ trademark-intelligence-pipeline/
 ---
 
 *Mehmood Ahmed Khan — Data Scientist & Analytics Engineer*
-*github.com/Mehmoodkhans · linkedin.com/in/mehmood → linkedin.com/in/mehmoood*
+*github.com/Mehmoodkhans · linkedin.com/in/mehmoood*
